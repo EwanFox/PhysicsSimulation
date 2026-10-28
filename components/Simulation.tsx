@@ -135,10 +135,10 @@ export default function Simulation(props: SimulationProps) {
     }, [props.resetKey]);
 
 
-    return <div style={{width: 1000}} className= 'justify-center content-center flex flex-col items-center gap-1 outline-solid rounded-sm outline-1'>
+    return <div style={{ width: 1000 }} className='justify-center content-center flex flex-col items-center gap-1 outline-solid rounded-sm outline-1'>
         <div ref={canvas} className={`w-[${simWidth.current}px] h-[${simWidth.current}px] outline-solid`} style={{ width: simWidth.current, height: simWidth.current }}>
         </div>
-        <div style={{width: simWidth.current, height: 40}} className='bg-slate-400 flex justify-center items-center text-center text-gray'>Heater</div>
+        <div style={{ width: simWidth.current, height: 40 }} className='bg-slate-400 flex justify-center items-center text-center text-gray'>Heater</div>
     </div>
 }
 
@@ -315,6 +315,11 @@ type Collision = | { type: "particle"; a: number; b: number } |
     side: "left" | "right" | "top" | "bottom";
 };
 
+function getCollision(
+    collision: Collision | null
+): Collision | null {
+    return collision;
+}
 
 
 function advanceGas(
@@ -401,7 +406,9 @@ function advanceGas(
             }
         }
 
-        if (collision === null) {
+        const currentCollision = getCollision(collision);
+
+        if (currentCollision === null) {
             moveParticles(particles, remaining);
             remaining = 0;
             break;
@@ -409,19 +416,22 @@ function advanceGas(
 
         moveParticles(particles, earliest);
         remaining -= earliest;
-        if (collision.type === "particle") {
+
+        if (currentCollision.type === "particle") {
             resolveParticleCollision(
-                particles[collision.a],
-                particles[collision.b]
+                particles[currentCollision.a],
+                particles[currentCollision.b]
             );
         } else {
             resolveWallCollision(
-                particles[collision.i],
-                collision.side,
+                particles[currentCollision.i],
+                currentCollision.side,
                 width,
                 height
             );
         }
+
+        events++;
 
         events++;
     }
