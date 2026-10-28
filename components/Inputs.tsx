@@ -31,9 +31,14 @@ interface UIProps {
 export default function UI(props: UIProps) {
 
     const [pressure, setPressure] = React.useState(0);
+    const currentParticleCount = React.useRef(props.particleCount);
 
     useEffect(() => {
-        setPressure(Math.ceil(props.internalEnergy/ ((3/2) * props.volume)))
+        currentParticleCount.current = props.particleCount
+    }, [props.resetKey])
+
+    useEffect(() => {
+        setPressure(Math.ceil((2/3) * ((props.internalEnergy * (3/2)) / ((props.volume)))))
     }, [props.resetKey, props.internalEnergy])
     return <div className="flex justify-center w-[350px] content-center m-auto">
         <Card className="w-full justify-center flex h-fit">
@@ -136,8 +141,9 @@ export default function UI(props: UIProps) {
                 </div>
                 <Button onClick={props.onReset}>Reset Simulation</Button>
                 <Separator />
-                <p>Internal Energy: {Math.ceil(props.internalEnergy).toString()} Joules</p>
+                <p>Internal Energy: {Math.ceil(props.internalEnergy * (3/2)).toString()} Joules</p>
                 <p>Pressure: {pressure.toString()} Pascals</p>
+                <p>Current Temperature: {Math.floor((props.internalEnergy/(gasConstant * (currentParticleCount.current/ props.config.particlesPerMole)))* 100) / 100} Kelvin</p>
             </CardContent>
 
         </Card>

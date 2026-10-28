@@ -29,13 +29,16 @@ export default function Simulation(props: SimulationProps) {
     const render = React.useRef<Render | null>(null);
     const animationRef = React.useRef<number | null>(null);
     const simWidth = React.useRef<number>(0);
-    const finalEnergyRef = React.useRef(props.finalTemperature * (3 / 2) * (props.particleCount / props.config.particlesPerMole) * gasConstant)
+    const finalEnergyRef = React.useRef(props.finalTemperature * (props.particleCount / props.config.particlesPerMole) * gasConstant)
 
 
-    React.useEffect(() => { finalEnergyRef.current = props.finalTemperature * (3 / 2) * (props.particleCount / props.config.particlesPerMole) * gasConstant }, [props.finalTemperature])
+    React.useEffect(() => { finalEnergyRef.current = props.finalTemperature * (props.particleCount / props.config.particlesPerMole) * gasConstant 
+        console.log(props.finalTemperature)
+    }, [props.finalTemperature, props.resetKey])
 
 
     const initializeRenderer = () => {
+        console.log(props)
         if (!canvas.current) return;
         simWidth.current = calculateWidth(props.volume);
         console.log("1");
@@ -57,15 +60,22 @@ export default function Simulation(props: SimulationProps) {
         engine.current.gravity.scale = 0;
         engine.current.gravity.x = 0;
         engine.current.gravity.y = 0;
-        const atoms = spawnParticles(simWidth.current, simWidth.current, props.particleCount, props.initialTemperature);
+        const atoms = spawnParticles(simWidth.current, simWidth.current, props.particleCount);
+        scaleVelocities(atoms, (props.initialTemperature * (props.particleCount/ props.config.particlesPerMole) * gasConstant))
         Composite.add(engine.current.world, atoms.map((p) => p.body));
 
         const initialEnergy = totalKineticEnergy(atoms);
+        console.log(initialEnergy);
         Render.run(render.current);
         let previousTime = performance.now();
         let accumulator = 0;
         const fixedDt = 1 / 120;
-        let lastEnergyLog = 0;
+
+
+
+
+
+        
 
         //Animation Loop
 
@@ -84,24 +94,6 @@ export default function Simulation(props: SimulationProps) {
             for (const p of atoms) {
                 Body.setPosition(p.body, { x: p.x, y: p.y });
             }
-
-            if (time - lastEnergyLog >= 1000) {
-                const energy = totalKineticEnergy(atoms);
-                const absoluteError = energy - initialEnergy;
-                const percentageError =
-                    initialEnergy === 0
-                        ? 0
-                        : (absoluteError / initialEnergy) * 100;
-
-                console.log(
-                    `KE: ${energy.toFixed(6)} | ` +
-                    `ΔE: ${absoluteError.toFixed(6)} | ` +
-                    `Error: ${percentageError.toFixed(6)}%`
-                );
-
-                lastEnergyLog = time;
-            }
-
             animationRef.current = requestAnimationFrame(animate);
         };
 
@@ -124,7 +116,7 @@ export default function Simulation(props: SimulationProps) {
 
     //Reset Effects
     React.useEffect(() => {
-        console.log("check")
+        clearRenderer();
         initializeRenderer();
         const newWidth = calculateWidth(props.volume);
         simWidth.current = newWidth;
@@ -138,7 +130,7 @@ export default function Simulation(props: SimulationProps) {
     return <div style={{ width: 1000 }} className='justify-center content-center flex flex-col items-center gap-1 outline-solid rounded-sm outline-1'>
         <div ref={canvas} className={`w-[${simWidth.current}px] h-[${simWidth.current}px] outline-solid`} style={{ width: simWidth.current, height: simWidth.current }}>
         </div>
-        <div style={{ width: simWidth.current, height: 40 }} className='bg-slate-400 flex justify-center items-center text-center text-gray'>Heater</div>
+        <div style={{ width: simWidth.current, height: 40 }} className='bg-red-600 flex justify-center items-center text-center text-white'>Heater</div>
     </div>
 }
 
@@ -171,11 +163,11 @@ function graduallyAdjustVelocity(particles: Particle[], targetEnergy: number, ra
     scaleVelocities(particles, nextEnergy);
 }
 
-function spawnParticles(width: number, height: number, particleCount: number, initialTemperature: number): Particle[] {
+function spawnParticles(width: number, height: number, particleCount: number): Particle[] {
     const particles: Particle[] = [];
     const radius = 6;
     const margin = 10 + radius;
-    const initialSpeed = 40 * (initialTemperature / 300);
+    const initialSpeed = 40;
     const diameter = radius * 2;
 
     const minX = margin + radius;
@@ -211,8 +203,7 @@ function spawnParticles(width: number, height: number, particleCount: number, in
 
         if (!placed) {
             throw new Error(
-                `Could not place particle ${i + 1} without overlap. ` +
-                `Try reducing the particle count.`
+                `Could not place particle ${i + 1} without overlap. `
             );
         }
 
@@ -329,6 +320,7 @@ function advanceGas(
     dt: number
 ) {
     let remaining = dt;
+
     let events = 0;
     const EPS = 1e-8;
     const MAX_EVENTS = 10000;
@@ -439,8 +431,8 @@ function advanceGas(
 
 function calculateWidth(volume: number) {
 
-    const baseArea = 400 ** 2;
+    const baseArea = 400 ** 3;
     const scale = (volume / 0.1);
     const newArea = scale * baseArea
-    return Math.floor(Math.sqrt(newArea));
+    return Math.floor(Math.cbrt(newArea));
 }
