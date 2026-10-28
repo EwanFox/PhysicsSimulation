@@ -3,10 +3,10 @@ import Image from "next/image";
 import UI from "../components/Inputs";
 import Simulation from "@/components/Simulation";
 import { useState } from "react";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 const config = {
-  particlesPerMole: 100
+  particlesPerMole: 80
 }
 
 
@@ -30,6 +30,7 @@ export default function Home() {
 
 
           <CardTitle>Heating of an Ideal Gas Simulation</CardTitle>
+          <CardDescription>by Ewan Fox</CardDescription>
 
       <main className="flex p-10 gap-4 content-center flex-row justify-center h-full w-full">
         <UI

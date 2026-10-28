@@ -173,7 +173,7 @@ function graduallyAdjustVelocity(particles: Particle[], targetEnergy: number, ra
 
 function spawnParticles(width: number, height: number, particleCount: number, initialTemperature: number): Particle[] {
     const particles: Particle[] = [];
-    const radius = 4;
+    const radius = 6;
     const margin = 10 + radius;
     const initialSpeed = 40 * (initialTemperature / 300);
     const diameter = radius * 2;
