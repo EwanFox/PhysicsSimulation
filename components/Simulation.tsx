@@ -156,7 +156,7 @@ function graduallyAdjustVelocity(particles: Particle[], targetEnergy: number, ra
     const currentEnergy = totalKineticEnergy(particles);
     if (currentEnergy <= 0 || targetEnergy < 0) return;
 
-    const alpha = 1 - Math.exp(-rate * dt);
+    const alpha = 1 - Math.exp(-(rate/10) * dt);
 
     const nextEnergy = currentEnergy + (targetEnergy - currentEnergy) * alpha;
 
