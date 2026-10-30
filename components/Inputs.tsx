@@ -27,18 +27,25 @@ interface UIProps {
 
 }
 
+type CurrentData = {
+    volume: number,
+    particleCount: number
+}
 
 export default function UI(props: UIProps) {
 
     const [pressure, setPressure] = React.useState(0);
-    const currentParticleCount = React.useRef(props.particleCount);
+    const currentData = React.useRef<CurrentData>({particleCount: props.particleCount, volume: props.volume});
 
     useEffect(() => {
-        currentParticleCount.current = props.particleCount
+        currentData.current = {
+            volume: props.volume,
+            particleCount: props.particleCount
+        }
     }, [props.resetKey])
 
     useEffect(() => {
-        setPressure(Math.ceil((2/3) * ((props.internalEnergy * (3/2)) / ((props.volume)))))
+        setPressure(Math.ceil((2/3) * ((props.internalEnergy * (3/2)) / ((currentData.current.volume)))))
     }, [props.resetKey, props.internalEnergy])
     return <div className="flex justify-center w-[350px] content-center m-auto">
         <Card className="w-full justify-center flex h-fit">
@@ -143,7 +150,7 @@ export default function UI(props: UIProps) {
                 <Separator />
                 <p>Internal Energy: {Math.ceil(props.internalEnergy * (3/2)).toString()} Joules</p>
                 <p>Pressure: {pressure.toString()} Pascals</p>
-                <p>Current Temperature: {Math.floor((props.internalEnergy/(gasConstant * (currentParticleCount.current/ props.config.particlesPerMole)))* 100) / 100} Kelvin</p>
+                <p>Current Temperature: {Math.round((props.internalEnergy/(gasConstant * (currentData.current.particleCount / props.config.particlesPerMole)))* 100) / 100} Kelvin</p>
             </CardContent>
 
         </Card>
