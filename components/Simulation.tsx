@@ -295,9 +295,14 @@ function resolveWallCollision(
 }
 
 function totalKineticEnergy(particles: Particle[]): number {
+    console.log(particles[0].mass)
     return particles.reduce((total, particle) => total + 0.5 * particle.mass * (particle.vx * particle.vx + particle.vy * particle.vy)
         , 0);
 }
+
+
+
+
 
 type Collision = | { type: "particle"; a: number; b: number } |
 {

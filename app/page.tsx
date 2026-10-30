@@ -5,6 +5,7 @@ import Simulation from "@/components/Simulation";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Explanation from "@/components/Explanation";
 const config = {
   particlesPerMole: 80
 }
@@ -26,11 +27,11 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black w-screen h-screen">
+    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black w-screen h-screen p-2">
       <CardTitle>Heating of an Ideal Gas Simulation</CardTitle>
       <CardDescription>by Ewan Fox</CardDescription>
       <div className="flex flex-row items-center justify-center">
-        <main className="flex p-10 gap-4 content-center flex-row justify-center h-full w-full">
+        <main className="flex p-10 pt-4 gap-4 content-center flex-row justify-center h-full w-full">
           <UI
             particleCount={particleCount}
             onParticleCountChange={setParticleCount}
@@ -59,11 +60,12 @@ export default function Home() {
           />
         </main>
       </div>
+      <Explanation internalEnergy={internalEnergy} particleCount={particleCount} config={config}></Explanation>
       <div className="flex flex-col">
         <Button variant="link" onClick={() => window.location.replace("https://github.com/EwanFox/PhysicsSimulation")}>Click here for source code.</Button>
         <CardDescription>This project makes use of matter.js for rendering & shadcn for user interface.</CardDescription>
       </div>
-      <CardDescription>Note: This simulation is a 2D approximation of a 3D gas. Displayed values of Internal Energy & Pressure are multipled by 3/2.</CardDescription>
+      <CardDescription >Note: This simulation is a 2D approximation of a 3D gas.</CardDescription>
     </div>
   );
 }

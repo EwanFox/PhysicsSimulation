@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "./katex.min.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -127,4 +128,19 @@
   html {
     @apply font-sans;
   }
+}
+
+.katex {
+    font: normal 1.21em KaTeX_Main, "Times New Roman", serif;
+    line-height: 20;
+    text-indent: 0;
+    text-rendering: auto;
+}
+
+.katex-display {
+    display: block;
+    margin: 1em 0;
+    text-align: center;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
