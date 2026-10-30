@@ -23,7 +23,9 @@ interface UIProps {
     onFinalTemperatureChange: (temperature: number) => void,
     heatingRate: number,
     onHeatingRateChange: (rate: number) => void,
-    internalEnergy: number
+    internalEnergy: number,
+    onPausedChange: (paused: boolean) => void,
+    isPaused: boolean
 
 }
 
@@ -147,6 +149,7 @@ export default function UI(props: UIProps) {
 
                 </div>
                 <Button onClick={props.onReset}>Reset Simulation</Button>
+                {props.isPaused ? <Button onClick={() => props.onPausedChange(false)}>Play Simulation</Button> : <Button onClick={() => props.onPausedChange(true)}>Pause Simulation</Button>  }
                 <Separator />
                 <p>Internal Energy: {Math.ceil(props.internalEnergy * (3/2)).toString()} Joules</p>
                 <p>Pressure: {pressure.toString()} Pascals</p>

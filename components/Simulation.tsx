@@ -10,7 +10,8 @@ interface SimulationProps {
     config: { particlesPerMole: number },
     heatingRate: number,
     reportInternalEnergy: (energy: number) => void,
-    volume: number
+    volume: number,
+    isPaused: boolean
 }
 
 type Particle = {
@@ -30,15 +31,23 @@ export default function Simulation(props: SimulationProps) {
     const animationRef = React.useRef<number | null>(null);
     const simWidth = React.useRef<number>(0);
     const finalEnergyRef = React.useRef(props.finalTemperature * (props.particleCount / props.config.particlesPerMole) * gasConstant)
+    const simulationSize = calculateWidth(props.volume);
+    const isPausedRef = React.useRef(props.isPaused);
+
+    React.useEffect(() => {
+        isPausedRef.current = props.isPaused;
+    }, [props.isPaused]);
 
 
-    React.useEffect(() => { finalEnergyRef.current = props.finalTemperature * (props.particleCount / props.config.particlesPerMole) * gasConstant 
+    React.useEffect(() => {
+        finalEnergyRef.current = props.finalTemperature * (props.particleCount / props.config.particlesPerMole) * gasConstant
         console.log(props.finalTemperature)
     }, [props.finalTemperature, props.resetKey])
 
-
     const initializeRenderer = () => {
-        console.log(props)
+
+        engine.current = Engine.create();
+
         if (!canvas.current) return;
         simWidth.current = calculateWidth(props.volume);
         console.log("1");
@@ -61,7 +70,7 @@ export default function Simulation(props: SimulationProps) {
         engine.current.gravity.x = 0;
         engine.current.gravity.y = 0;
         const atoms = spawnParticles(simWidth.current, simWidth.current, props.particleCount);
-        scaleVelocities(atoms, (props.initialTemperature * (props.particleCount/ props.config.particlesPerMole) * gasConstant))
+        scaleVelocities(atoms, (props.initialTemperature * (props.particleCount / props.config.particlesPerMole) * gasConstant))
         Composite.add(engine.current.world, atoms.map((p) => p.body));
 
         const initialEnergy = totalKineticEnergy(atoms);
@@ -72,16 +81,25 @@ export default function Simulation(props: SimulationProps) {
         const fixedDt = 1 / 120;
 
 
-
-
-
-        
-
         //Animation Loop
 
         const animate = (time: number) => {
+
             const elapsed = Math.min((time - previousTime) / 1000, 0.05);
             previousTime = time;
+
+            for (const p of atoms) {
+                Body.setPosition(p.body, { x: p.x, y: p.y });
+            }
+
+
+            if (isPausedRef.current) {
+                accumulator = 0;
+
+                animationRef.current = requestAnimationFrame(animate);
+                return;
+            }
+
             accumulator += elapsed;
 
             while (accumulator >= fixedDt) {
@@ -94,44 +112,67 @@ export default function Simulation(props: SimulationProps) {
             for (const p of atoms) {
                 Body.setPosition(p.body, { x: p.x, y: p.y });
             }
+
             animationRef.current = requestAnimationFrame(animate);
         };
 
         animationRef.current = requestAnimationFrame(animate);
     }
+
     const clearRenderer = () => {
-        if (!render.current) return;
-        Render.stop(render.current);
-        render.current.canvas.remove();
         if (animationRef.current !== null) {
             cancelAnimationFrame(animationRef.current);
             animationRef.current = null;
         }
+        if (render.current) {
+            Render.stop(render.current);
 
-        if (!engine.current) return;
-        //Might need to change this later
-        World.clear(engine.current.world, true);
+            render.current.canvas.remove();
+            render.current.canvas = null as any;
+            render.current.context = null as any;
+
+            render.current = null;
+        }
+        World.clear(engine.current.world, false);
         Engine.clear(engine.current);
-    }
+    };
+
 
     //Reset Effects
-    React.useEffect(() => {
-        clearRenderer();
+    React.useLayoutEffect(() => {
+        simWidth.current = simulationSize;
+
         initializeRenderer();
-        const newWidth = calculateWidth(props.volume);
-        simWidth.current = newWidth;
+
         return () => {
             clearRenderer();
-        }
+        };
+    }, [props.resetKey, props.volume, props.particleCount]);
 
-    }, [props.resetKey]);
-
-
-    return <div style={{ width: 700 }} className='justify-center content-center flex flex-col items-center gap-1 outline-solid rounded-sm outline-1'>
-        <div ref={canvas} className={`w-[${simWidth.current}px] h-[${simWidth.current}px] outline-solid`} style={{ width: simWidth.current, height: simWidth.current }}>
+    return (
+        <div
+            style={{ width: 700 }}
+            className="justify-center content-center flex flex-col items-center gap-1 outline-solid rounded-sm outline-1"
+        >
+            <div
+                ref={canvas}
+                style={{
+                    width: simulationSize,
+                    height: simulationSize,
+                }}
+                className="outline-solid"
+            />
+            <div
+                style={{
+                    width: simulationSize,
+                    height: 40,
+                }}
+                className="bg-red-600 flex justify-center items-center text-center text-white"
+            >
+                Heater
+            </div>
         </div>
-        <div style={{ width: simWidth.current, height: 40 }} className='bg-red-600 flex justify-center items-center text-center text-white'>Heater</div>
-    </div>
+    );
 }
 
 function scaleVelocities(particles: Particle[], targetEnergy: number): void {
@@ -427,8 +468,6 @@ function advanceGas(
                 height
             );
         }
-
-        events++;
 
         events++;
     }

@@ -27,6 +27,8 @@ export default function Home() {
   const [internalEnergy, setInternalEnergy] = useState(0);
   const [tableData, setTableData] = useState<Log[]>([]);
   const currentData = useRef({particleCount: particleCount, volume: volume});
+  const [paused, togglePause] = useState(true);
+
 
   function handleReset() {
     setResetKey(key => key + 1);
@@ -72,6 +74,8 @@ export default function Home() {
             onHeatingRateChange={setHeatingRate}
             heatingRate={heatingRate}
             internalEnergy={internalEnergy}
+            isPaused={paused}
+            onPausedChange={togglePause}
           />
           <Simulation
             particleCount={particleCount}
@@ -82,6 +86,7 @@ export default function Home() {
             finalTemperature={finalTemperature}
             reportInternalEnergy={setInternalEnergy}
             volume={volume}
+            isPaused={paused}
           />
         </main>
       </div>
