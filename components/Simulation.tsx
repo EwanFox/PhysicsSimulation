@@ -127,7 +127,7 @@ export default function Simulation(props: SimulationProps) {
     }, [props.resetKey]);
 
 
-    return <div style={{ width: 1000 }} className='justify-center content-center flex flex-col items-center gap-1 outline-solid rounded-sm outline-1'>
+    return <div style={{ width: 700 }} className='justify-center content-center flex flex-col items-center gap-1 outline-solid rounded-sm outline-1'>
         <div ref={canvas} className={`w-[${simWidth.current}px] h-[${simWidth.current}px] outline-solid`} style={{ width: simWidth.current, height: simWidth.current }}>
         </div>
         <div style={{ width: simWidth.current, height: 40 }} className='bg-red-600 flex justify-center items-center text-center text-white'>Heater</div>
