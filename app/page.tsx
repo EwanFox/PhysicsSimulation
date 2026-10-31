@@ -9,6 +9,7 @@ import Explanation from "@/components/Explanation";
 import TableManager from "@/components/TableManager";
 import { Log } from "@/components/table-columns";
 import { Chart } from "@/components/Chart";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 const gasConstant = 8.314;
 const config = {
   particlesPerMole: 80
@@ -35,10 +36,10 @@ export default function Home() {
 
   function recordValues() {
     let new_entry: Log = {
-      internalEnergy: Math.floor(((3/2) * internalEnergy)),
+      internalEnergy: Math.floor(((3 / 2) * internalEnergy)),
       volume: volume,
-      temperature: Math.round((internalEnergy/(gasConstant * (particleCount / config.particlesPerMole)))* 100) / 100,
-      pressure: Math.ceil((2/3) * ((internalEnergy * (3/2)) / ((volume)))),
+      temperature: Math.round((internalEnergy / (gasConstant * (particleCount / config.particlesPerMole))) * 100) / 100,
+      pressure: Math.ceil((2 / 3) * ((internalEnergy * (3 / 2)) / ((volume)))),
       moles: particleCount / config.particlesPerMole
     }
     setTableData(prev => [...prev, new_entry]);
@@ -50,8 +51,43 @@ export default function Home() {
 
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black w-screen h-screen p-2">
-      <CardTitle>Heating of an Ideal Gas Simulation</CardTitle>
-      <CardDescription>by Ewan Fox</CardDescription>
+      <div className="flex flex-col flex-1 items-center justify-center flex-row w-full">
+         <div className="mr-auto p-4 invisible">
+          <Dialog>
+            <DialogTrigger>Tutorial</DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Usage Guide</DialogTitle>
+              </DialogHeader>
+              <div className="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
+                <p className="mb-4 leading-normal">
+
+                </p>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+        <div className="flex flex-col flex-1 items-center justify-center">
+          <CardTitle>Heating of an Ideal Gas Simulation</CardTitle>
+          <CardDescription>by Ewan Fox</CardDescription>
+        </div>
+        <div className="ml-auto p-4">
+          <Dialog>
+            <DialogTrigger>Tutorial</DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Usage Guide</DialogTitle>
+              </DialogHeader>
+              <div className="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
+                <p className="mb-4 leading-normal">
+
+                </p>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
       <div className="flex flex-row items-center justify-center">
         <main className="flex p-10 pt-4 gap-4 content-center flex-row justify-center h-full w-full">
           <UI
@@ -86,7 +122,7 @@ export default function Home() {
         </main>
       </div>
       <TableManager data={tableData} resetTableHandler={resetTable} recordValueHandler={recordValues}></TableManager>
-      <Chart data={tableData}/>
+      <Chart data={tableData} />
       <Explanation internalEnergy={internalEnergy} particleCount={particleCount} config={config}></Explanation>
       <div className="flex flex-col">
         <Button variant="link" onClick={() => window.location.replace("https://github.com/EwanFox/PhysicsSimulation")}>Click here for source code.</Button>

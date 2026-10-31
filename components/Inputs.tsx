@@ -45,7 +45,7 @@ export default function UI(props: UIProps) {
     const nextSimulationData = React.useRef<NextSimData>({volume: props.volume, particleCount: props.particleCount, initialTemperature: props.initialTemperature})
 
     useEffect(() => {
-        setPressure(Math.ceil((2/3) * ((props.internalEnergy * (3/2)) / ((props.volume)))))
+        setPressure(Math.round((2/3) * ((props.internalEnergy * (3/2)) / ((props.volume)))))
     }, [props.resetKey, props.internalEnergy])
     return <div className="flex justify-center w-[350px] content-center m-auto">
         <Card className="w-full justify-center flex h-fit">
@@ -154,7 +154,7 @@ export default function UI(props: UIProps) {
                 }}>Reset Simulation</Button>
                 {props.isPaused ? <Button onClick={() => props.onPausedChange(false)}>Play Simulation</Button> : <Button onClick={() => props.onPausedChange(true)}>Pause Simulation</Button>  }
                 <Separator />
-                <p>Internal Energy: {Math.ceil(props.internalEnergy * (3/2)).toString()} Joules</p>
+                <p>Internal Energy: {Math.round(props.internalEnergy * (3/2)).toString()} Joules</p>
                 <p>Pressure: {pressure.toString()} Pascals</p>
                 <p>Current Temperature: {Math.round((props.internalEnergy/(gasConstant * (props.particleCount / props.config.particlesPerMole)))* 100) / 100} Kelvin</p>
             </CardContent>
