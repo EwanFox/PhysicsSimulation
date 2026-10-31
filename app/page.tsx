@@ -26,7 +26,6 @@ export default function Home() {
   const [finalTemperature, setFinalTemperature] = useState(450);
   const [internalEnergy, setInternalEnergy] = useState(0);
   const [tableData, setTableData] = useState<Log[]>([]);
-  const currentData = useRef({particleCount: particleCount, volume: volume});
   const [paused, togglePause] = useState(true);
 
 
@@ -34,17 +33,13 @@ export default function Home() {
     setResetKey(key => key + 1);
   }
 
-  useEffect(() => {
-    currentData.current = {particleCount: particleCount, volume: volume};
-  }, [resetKey])
-
   function recordValues() {
     let new_entry: Log = {
       internalEnergy: Math.floor(((3/2) * internalEnergy)),
       volume: volume,
-      temperature: Math.round((internalEnergy/(gasConstant * (currentData.current.particleCount / config.particlesPerMole)))* 100) / 100,
-      pressure: Math.ceil((2/3) * ((internalEnergy * (3/2)) / ((currentData.current.volume)))),
-      moles: currentData.current.particleCount / config.particlesPerMole
+      temperature: Math.round((internalEnergy/(gasConstant * (particleCount / config.particlesPerMole)))* 100) / 100,
+      pressure: Math.ceil((2/3) * ((internalEnergy * (3/2)) / ((volume)))),
+      moles: particleCount / config.particlesPerMole
     }
     setTableData(prev => [...prev, new_entry]);
   }

@@ -14,6 +14,12 @@ interface SimulationProps {
     isPaused: boolean
 }
 
+interface SimulationState {
+    particleCount: number,
+    initialTemperature: number,
+    volume: number
+}
+
 type Particle = {
     body: Body,
     x: number,
