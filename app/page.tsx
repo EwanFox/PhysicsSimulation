@@ -10,6 +10,7 @@ import TableManager from "@/components/TableManager";
 import { Log } from "@/components/table-columns";
 import { Chart } from "@/components/Chart";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import LimitationsAssumptions from "@/components/LimitationsAssumptions";
 const gasConstant = 8.314;
 const config = {
   particlesPerMole: 80
@@ -123,7 +124,8 @@ export default function Home() {
       </div>
       <TableManager data={tableData} resetTableHandler={resetTable} recordValueHandler={recordValues}></TableManager>
       <Chart data={tableData} />
-      <Explanation internalEnergy={internalEnergy} particleCount={particleCount} config={config}></Explanation>
+      <Explanation internalEnergy={internalEnergy} particleCount={particleCount} config={config} volume={volume}></Explanation>
+      <LimitationsAssumptions />
       <div className="flex flex-col">
         <Button variant="link" onClick={() => window.location.replace("https://github.com/EwanFox/PhysicsSimulation")}>Click here for source code.</Button>
         <CardDescription>This project makes use of matter.js for rendering & shadcn for user interface.</CardDescription>

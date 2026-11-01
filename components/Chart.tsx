@@ -55,7 +55,7 @@ const axisOptions = [
 
 export function Chart(props: ChartProps) {
     console.log(props.data)
-    const [xAxis, setXAxis] = useState("volume");
+    const [xAxis, setXAxis] = useState("temperature");
     const [yAxis, setYAxis] = useState('pressure');
     return <div className="w-full flex content-center align-center justify-center pr-24 pl-24 pb-4"><Card className="w-full">
         <CardHeader>

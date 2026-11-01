@@ -7,10 +7,11 @@ import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { useEffect } from "react";
+import { calculateWidth } from "./Simulation";
 const gasConstant = 8.314;
 
 interface UIProps {
-    config: {particlesPerMole: number},
+    config: { particlesPerMole: number },
     onParticleCountChange: (count: number) => void,
     particleCount: number,
     initialTemperature: number,
@@ -29,24 +30,36 @@ interface UIProps {
 
 }
 
-type CurrentData = {
-    volume: number,
-    particleCount: number
-}
-
 type NextSimData = {
     volume: number,
     particleCount: number,
     initialTemperature: number
 }
 export default function UI(props: UIProps) {
+    const [canRunSimulation, setCanRunSimulation] = React.useState(true);
+    const [nextSimulationData, setNextSimulationData] = React.useState<NextSimData>({ volume: props.volume, particleCount: props.particleCount, initialTemperature: props.initialTemperature })
 
-    const [pressure, setPressure] = React.useState(0);
-    const nextSimulationData = React.useRef<NextSimData>({volume: props.volume, particleCount: props.particleCount, initialTemperature: props.initialTemperature})
+    const pressure = Math.round(
+        props.internalEnergy / props.volume
+    );
 
-    useEffect(() => {
-        setPressure(Math.round((2/3) * ((props.internalEnergy * (3/2)) / ((props.volume)))))
-    }, [props.resetKey, props.internalEnergy])
+    React.useEffect(() => {
+        setNextSimulationData({
+            volume: props.volume,
+            particleCount: props.particleCount,
+            initialTemperature: props.initialTemperature
+        });
+    }, [props.resetKey]);
+
+    React.useEffect(() => {
+        const max = getMaxParticleCount(nextSimulationData.volume);
+        if (nextSimulationData.particleCount > max) {
+            setCanRunSimulation(false);
+        } else {
+            setCanRunSimulation(true);
+        }
+    }, [nextSimulationData.volume, nextSimulationData.particleCount])
+
     return <div className="flex justify-center w-[350px] content-center m-auto">
         <Card className="w-full justify-center flex h-fit">
             <CardContent className="gap-4 flex flex-col">
@@ -55,14 +68,19 @@ export default function UI(props: UIProps) {
                     <div className="flex items-center justify-between gap-2">
                         <Label htmlFor="sim-min-temp">Initial Temperature</Label>
                         <span className="text-sm text-muted-foreground">
-                            {nextSimulationData.current.initialTemperature + " Kelvin"}
+                            {nextSimulationData.initialTemperature.toFixed(1) + " Kelvin"}
                         </span>
 
                     </div>
                     <Slider
                         id="sim-min-temp"
-                        value={[nextSimulationData.current.initialTemperature]}
-                        onValueChange={(value) => {nextSimulationData.current.initialTemperature = (value as number[])[0]}}
+                        value={[nextSimulationData.initialTemperature]}
+                        onValueChange={(value) => {
+                            setNextSimulationData(prev => ({
+                                ...prev,
+                                initialTemperature: (value as number[])[0]
+                            }))
+                        }}
                         min={50}
                         max={999}
                         step={0.5}
@@ -73,15 +91,20 @@ export default function UI(props: UIProps) {
                     <div className="flex items-center justify-between gap-2">
                         <Label htmlFor="sim-vol">Volume</Label>
                         <span className="text-sm text-muted-foreground">
-                            {nextSimulationData.current.volume + "m^3"}
+                            {nextSimulationData.volume.toFixed(3) + "m³"}
                         </span>
 
                     </div>
                     <Slider
                         id="sim-vol"
-                        value={[nextSimulationData.current.volume]}
-                        onValueChange={(value) => {nextSimulationData.current.volume = (value as number[])[0]}}
-                        min={0.05}
+                        value={[nextSimulationData.volume]}
+                        onValueChange={(value) => {
+                            setNextSimulationData(prev => ({
+                                ...prev,
+                                volume: (value as number[])[0]
+                            }))
+                        }}
+                        min={0.01}
                         max={0.250}
                         step={0.001}
                         className={""}
@@ -91,17 +114,24 @@ export default function UI(props: UIProps) {
                     <div className="flex items-center justify-between gap-2">
                         <Label htmlFor="sim-amount">Moles of Gas</Label>
                         <span className="text-sm text-muted-foreground">
-                            {(nextSimulationData.current.particleCount / props.config.particlesPerMole) + " moles"}
+                            {(nextSimulationData.particleCount / props.config.particlesPerMole).toFixed(4) + " moles"}
                         </span>
 
                     </div>
                     <Slider
                         id="sim-amount"
-                        value={[nextSimulationData.current.particleCount / props.config.particlesPerMole]}
-                        onValueChange={(value) => { nextSimulationData.current.particleCount = (value as number[])[0] * props.config.particlesPerMole}}
+                        value={[nextSimulationData.particleCount / props.config.particlesPerMole]}
+                        onValueChange={(value) => {
+                            const count = Math.round((value as number[][0] * props.config.particlesPerMole));
+
+                            setNextSimulationData(prev => ({
+                                ...prev,
+                                particleCount: count
+                            }))
+                        }}
                         min={0.1}
                         max={5}
-                        step={0.01}
+                        step={1 / props.config.particlesPerMole}
                         className={""}
                     />
 
@@ -112,7 +142,7 @@ export default function UI(props: UIProps) {
                     <div className="flex items-center justify-between gap-2">
                         <Label htmlFor="sim-final-temp">Final Temperature</Label>
                         <span className="text-sm text-muted-foreground">
-                            {props.finalTemperature + " Kelvin"}
+                            {props.finalTemperature.toFixed(1) + " Kelvin"}
                         </span>
 
                     </div>
@@ -131,7 +161,7 @@ export default function UI(props: UIProps) {
                     <div className="flex items-center justify-between gap-2">
                         <Label htmlFor="sim-heating-rate">Heating Rate</Label>
                         <span className="text-sm text-muted-foreground">
-                            {"x" + props.heatingRate}
+                            {"x" + props.heatingRate.toFixed(1)}
                         </span>
 
                     </div>
@@ -147,19 +177,33 @@ export default function UI(props: UIProps) {
 
                 </div>
                 <Button onClick={() => {
-                    props.onInitialTemperatureChange(nextSimulationData.current.initialTemperature)
-                    props.onVolumeChange(nextSimulationData.current.volume)
-                    props.onParticleCountChange(nextSimulationData.current.particleCount)
+                    props.onInitialTemperatureChange(nextSimulationData.initialTemperature)
+                    props.onVolumeChange(nextSimulationData.volume)
+                    props.onParticleCountChange(nextSimulationData.particleCount)
                     props.onReset()
-                }}>Reset Simulation</Button>
-                {props.isPaused ? <Button onClick={() => props.onPausedChange(false)}>Play Simulation</Button> : <Button onClick={() => props.onPausedChange(true)}>Pause Simulation</Button>  }
+                }} disabled={!canRunSimulation}>Reset Simulation</Button>
+                {props.isPaused ? <Button onClick={() => props.onPausedChange(false)}>Play Simulation</Button> : <Button onClick={() => props.onPausedChange(true)}>Pause Simulation</Button>}
                 <Separator />
-                <p>Internal Energy: {Math.round(props.internalEnergy * (3/2)).toString()} Joules</p>
+                <p>Internal Energy: {Math.round(props.internalEnergy * (3 / 2)).toString()} Joules</p>
                 <p>Pressure: {pressure.toString()} Pascals</p>
-                <p>Current Temperature: {Math.round((props.internalEnergy/(gasConstant * (props.particleCount / props.config.particlesPerMole)))* 100) / 100} Kelvin</p>
+                <p>Current Temperature: {Math.round((props.internalEnergy / (gasConstant * (props.particleCount / props.config.particlesPerMole))) * 100) / 100} Kelvin</p>
             </CardContent>
 
         </Card>
 
     </div>
+} 
+
+function getMaxParticleCount(volume: number): number {
+    const width = calculateWidth(volume);
+    const margin = 22;
+    const minDistance = 9;
+    const availableW = width - margin * 2;
+    const availableA = availableW ** 2;
+    const packingDensity = 0.35;
+    const exclusionR = minDistance / 2;
+    const particleA = Math.PI * exclusionR ** 2;
+    return Math.floor(
+        packingDensity * availableA / particleA
+    )
 }

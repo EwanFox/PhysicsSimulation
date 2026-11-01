@@ -4,6 +4,7 @@ import Latex from "react-latex-next";
 interface ExplanationProps {
     internalEnergy: number,
     particleCount: number,
+    volume: number,
     config: {
         particlesPerMole: number
     }
@@ -32,7 +33,7 @@ export default function Explanation(props: ExplanationProps) {
                 <Latex>{String.raw`$\frac{3}{2}$`}</Latex> as follows: <Latex>{String.raw`$N_{\text{3D}}=\frac{3}{2}U_{\text{2D}}=\frac{3}{2}(${(props.particleCount * Math.round(props.internalEnergy / (props.particleCount))).toString()})=${Math.round((3/2)*props.internalEnergy).toString()}\text{J}$`}</Latex> <br /><br />
 
                 We can find the pressure in a similar fashion. <br />
-                <Latex>{String.raw`$P_{\text{3D}}=\frac{3}{2}P_{\text{2D}}=\frac{3U_{\text{2D}}}{2V}$`}</Latex>
+                <Latex>{String.raw`$P_{\text{3D}}=\frac{3}{2}P_{\text{2D}}=\frac{3U_{\text{2D}}}{2V}=\frac{3(${Math.round(props.internalEnergy)})}{2(${props.volume})} = \frac{${Math.round(3*props.internalEnergy)}}{${2*props.volume}} = ${Math.round((3*props.internalEnergy)/(2*props.volume))} \, \text{Pascals}$`}</Latex>
 
 
 

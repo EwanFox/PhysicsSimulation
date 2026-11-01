@@ -212,7 +212,7 @@ function graduallyAdjustVelocity(particles: Particle[], targetEnergy: number, ra
 
 function spawnParticles(width: number, height: number, particleCount: number): Particle[] {
     const particles: Particle[] = [];
-    const radius = 6;
+    const radius = 4;
     const margin = 10 + radius;
     const initialSpeed = 40;
     const diameter = radius * 2;
@@ -479,7 +479,7 @@ function advanceGas(
     }
 }
 
-function calculateWidth(volume: number) {
+export function calculateWidth(volume: number) {
 
     const baseArea = 400 ** 3;
     const scale = (volume / 0.1);
