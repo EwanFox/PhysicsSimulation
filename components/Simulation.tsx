@@ -39,6 +39,11 @@ export default function Simulation(props: SimulationProps) {
     const finalEnergyRef = React.useRef(props.finalTemperature * (props.particleCount / props.config.particlesPerMole) * gasConstant)
     const simulationSize = calculateWidth(props.volume);
     const isPausedRef = React.useRef(props.isPaused);
+    const heatingPowerRef = React.useRef(props.heatingRate);
+
+    React.useEffect(() => {
+        heatingPowerRef.current = props.heatingRate;
+    }, [props.heatingRate]);
 
     React.useEffect(() => {
         isPausedRef.current = props.isPaused;
@@ -110,7 +115,12 @@ export default function Simulation(props: SimulationProps) {
 
             while (accumulator >= fixedDt) {
                 advanceGas(atoms, simWidth.current, simWidth.current, fixedDt);
-                graduallyAdjustVelocity(atoms, finalEnergyRef.current, props.heatingRate, fixedDt)
+                heatGas(
+                    atoms,
+                    finalEnergyRef.current,
+                    heatingPowerRef.current,
+                    fixedDt
+                );
                 props.reportInternalEnergy(totalKineticEnergy(atoms));
                 accumulator -= fixedDt;
             }
@@ -198,18 +208,33 @@ function scaleVelocities(particles: Particle[], targetEnergy: number): void {
     }
 }
 
-function graduallyAdjustVelocity(particles: Particle[], targetEnergy: number, rate: number, dt: number): void {
-    console.log(targetEnergy)
+function heatGas(
+    particles: Particle[],
+    targetEnergy: number,
+    power: number,
+    dt: number
+) {
     const currentEnergy = totalKineticEnergy(particles);
-    if (currentEnergy <= 0 || targetEnergy < 0) return;
 
-    const alpha = 1 - Math.exp(-(rate) * dt);
+    if (currentEnergy >= targetEnergy) return;
 
-    const nextEnergy = currentEnergy + (targetEnergy - currentEnergy) * alpha;
+    // Energy supplied during this timestep
+    const energyAdded = (2 / 3) * power * dt;
 
-    scaleVelocities(particles, nextEnergy);
+    // Don't exceed the target energy
+    const newEnergy = Math.min(
+        currentEnergy + energyAdded,
+        targetEnergy
+    );
+
+    // Scale velocities to produce the desired kinetic energy
+    const scale = Math.sqrt(newEnergy / currentEnergy);
+
+    for (const p of particles) {
+        p.vx *= scale;
+        p.vy *= scale;
+    }
 }
-
 function spawnParticles(width: number, height: number, particleCount: number): Particle[] {
     const particles: Particle[] = [];
     const radius = 4;

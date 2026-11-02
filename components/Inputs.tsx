@@ -159,9 +159,9 @@ export default function UI(props: UIProps) {
                 </div>
                 <div className="flex gap-2 flex-col">
                     <div className="flex items-center justify-between gap-2">
-                        <Label htmlFor="sim-heating-rate">Heating Rate</Label>
+                        <Label htmlFor="sim-heating-rate">Heating Rate (W)</Label>
                         <span className="text-sm text-muted-foreground">
-                            {"x" + props.heatingRate.toFixed(1)}
+                            {"Heater Power:" + props.heatingRate.toFixed(0) + " W"}
                         </span>
 
                     </div>
@@ -169,9 +169,9 @@ export default function UI(props: UIProps) {
                         id="sim-heating-rate"
                         value={[props.heatingRate]}
                         onValueChange={(value) => props.onHeatingRateChange((value as number[])[0])}
-                        min={0.1}
-                        max={5}
-                        step={0.1}
+                        min={1}
+                        max={1000}
+                        step={1}
                         className={""}
                     />
 

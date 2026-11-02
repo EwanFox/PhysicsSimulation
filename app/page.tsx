@@ -24,12 +24,12 @@ export default function Home() {
   const [initialTemp, setInitialTemp] = useState(300);
   const [resetKey, setResetKey] = useState(0);
   const [volume, setVolume] = useState(0.1);
-  const [heatingRate, setHeatingRate] = useState(0.1);
+  const [heatingRate, setHeatingRate] = useState(1);
   const [finalTemperature, setFinalTemperature] = useState(450);
   const [internalEnergy, setInternalEnergy] = useState(0);
   const [tableData, setTableData] = useState<Log[]>([]);
   const [paused, togglePause] = useState(true);
-
+  
 
   function handleReset() {
     setResetKey(key => key + 1);
@@ -53,18 +53,14 @@ export default function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black w-screen h-screen p-2">
       <div className="flex flex-col flex-1 items-center justify-center flex-row w-full">
-         <div className="mr-auto p-4 invisible">
+        <div className="mr-auto p-4 invisible">
           <Dialog>
             <DialogTrigger>Tutorial</DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Usage Guide</DialogTitle>
               </DialogHeader>
-              <div className="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
-                <p className="mb-4 leading-normal">
 
-                </p>
-              </div>
             </DialogContent>
           </Dialog>
         </div>
@@ -75,13 +71,54 @@ export default function Home() {
         <div className="ml-auto p-4">
           <Dialog>
             <DialogTrigger>Tutorial</DialogTrigger>
-            <DialogContent>
+            <DialogContent className={"sm:max-w-[600px]"}>
               <DialogHeader>
                 <DialogTitle>Usage Guide</DialogTitle>
               </DialogHeader>
-              <div className="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
+              <div className="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4 w-[1/2]">
                 <p className="mb-4 leading-normal">
-
+                  <b>Simulation</b>
+                </p>
+                <p className="mb-4 leading-normal">
+                  This is an interactive simulation of the isovolumetric heating of an ideal gas. <br />
+                  The simulation features both a reset button and a play / pause button. <br />
+                  Press the reset button to start a new simulation after changing the initial parameters. < br />
+                  The live parameters can be changed while the simulation is running or paused without resetting it. <br /> < br />
+                  There are three initial parameters: <br />
+                  1) Initial Temperature - The temperatureat which the gas begins in Kelvin. <br />
+                  2) Volume - The volume of the rigid tank in m^3. <br />
+                  3) Moles of Gas - The amount of gas particles in the tank in moles. <br /> <br />
+                  Additionally, there are two live parameters. <br />
+                  1) Final Temperature - The temperature to which the gas is heated in Kelvin. <br />
+                  2) Heater Power - The rate at which the heater outputs heat energy in Watts (Joules / Simulated Second). <br />
+                </p>
+                <p className="mb-4 leading-normal">
+                  <b>Data Table</b>
+                </p>
+                <p className="mb-4 leading-normal">
+                  This is a data table in which the live values of the simulation can be recorded for inspection and analysis. <br />
+                  Press the Record Values button to add the current state of the simulation to the table. <br />
+                  Press the Clear Table button to remove all records from the table. <br />
+                </p>
+                <p className="mb-4 leading-normal">
+                  <b>Data Graph</b>
+                </p>
+                <p className="mb-4 leading-normal">
+                  This is a customizable graph graphed based on the data recorded in the table. <br />
+                  As you add rows to the table, they will automatically be added to the graph. <br />
+                  You can select the variables for both the X-Axis and the Y-Axis.<br /> 
+                  The choices are as follows: <br /> <br />
+                  1) Volume of the Tank. <br />
+                  2) Temperature of the Gas. <br />
+                  3) Pressure due to the Gas. <br />
+                  4) Moles of Gas in the Tank. <br />
+                  5) Internal Energy of the Gas. <br />
+                </p>
+                                <p className="mb-4 leading-normal">
+                  <b>Assumptions, Limitation, & Explanation</b>
+                </p>
+                <p className="mb-4 leading-normal">
+                  The assumptions, limitations, and explanation behind this simulation can be found in the accompanying document provided.
                 </p>
               </div>
             </DialogContent>
@@ -124,8 +161,6 @@ export default function Home() {
       </div>
       <TableManager data={tableData} resetTableHandler={resetTable} recordValueHandler={recordValues}></TableManager>
       <Chart data={tableData} />
-      <Explanation internalEnergy={internalEnergy} particleCount={particleCount} config={config} volume={volume}></Explanation>
-      <LimitationsAssumptions />
       <div className="flex flex-col">
         <Button variant="link" onClick={() => window.location.replace("https://github.com/EwanFox/PhysicsSimulation")}>Click here for source code.</Button>
         <CardDescription>This project makes use of matter.js for rendering & shadcn for user interface.</CardDescription>
